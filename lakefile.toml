@@ -1,11 +1,18 @@
 name = "colouring"
 version = "0.1.0"
 description = "A shared colouring page: a never-ending demo of the Datastar Lean SDK."
+license = "MIT"
 defaultTargets = ["colouring"]
 
 [[require]]
 name = "datastar"
 git = "https://github.com/starfederation/datastar-lean"
+rev = "3798b6a1846debf758933a985accc14211eee582"
+
+[[require]]
+name = "datastar-brotli"
+git = "https://github.com/starfederation/datastar-lean"
+subDir = "datastar-brotli"
 rev = "3798b6a1846debf758933a985accc14211eee582"
 
 [[lean_exe]]

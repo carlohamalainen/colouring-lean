@@ -6,6 +6,8 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 COPY lean-toolchain /tmp/lean-toolchain
 RUN curl -sSfL https://elan.lean-lang.org/elan-init.sh \
-    | sh -s -- -y --default-toolchain "$(cat /tmp/lean-toolchain)"
+    | sh -s -- -y --default-toolchain none
+# elan only records a default; install the toolchain so builds do not download it every time.
+RUN /root/.elan/bin/elan toolchain install "$(cat /tmp/lean-toolchain)"
 ENV PATH=/root/.elan/bin:$PATH
 WORKDIR /work

@@ -1,4 +1,5 @@
 import Datastar
+import DatastarBrotli
 
 import Std.Async
 import Std.Http
@@ -83,9 +84,14 @@ def indexHtml : String := include_str "index.html"
 /-- Datastar, vendored in. -/
 def datastarJs : String := include_str "static/datastar.js"
 
-/-- One SSE stream per open page: send the whole board whenever it changes. -/
-def updates (state : SharedState) : ContextAsync (Response Body.Any) :=
-  sseResponse fun sse => do
+/--
+One SSE stream per open page: send the whole board whenever it changes.
+-/
+def updates (state : SharedState) (req : Request Body.Stream) : ContextAsync (Response Body.Any) :=
+  -- Quality 4 compresses these frames as well as the default 6 and needs a quarter of the memory
+  -- per open stream. A 64 KB window holds several frames of history, which is all the next frame
+  -- needs to compress against.
+  sseResponseWith [brotli (quality := 4) (windowLog := 16)] req fun sse => do
     state.update fun b => { b with online := b.online + 1 }
     IO.eprintln s!"viewer joined, {(← state.board.get).online} online"
     try
@@ -139,7 +145,7 @@ def app (state : SharedState) (req : Request Body.Stream) : ContextAsync (Respon
     Response.ok
       |>.header Header.Name.contentType (Header.Value.ofString! "text/javascript")
       |>.fromBytes datastarJs.toUTF8
-  | .get, ["", "updates"] => updates state
+  | .get, ["", "updates"] => updates state req
   | .post, ["", "paint", n] =>
     match n.toNat? with
     | some cell => paint state cell req

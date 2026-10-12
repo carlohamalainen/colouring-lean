@@ -11,6 +11,9 @@ WorkingDirectory=/opt/colouring-lean
 ExecStart=/opt/colouring-lean/colouring-linux-amd64 8084 30 127.0.0.1
 Restart=always
 RestartSec=5
+# The droplet is shared with other services; past this the app is restarted rather than
+# starving them. Each open stream costs about 1.5 MB.
+MemoryMax=450M
 
 [Install]
 WantedBy=multi-user.target

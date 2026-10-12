@@ -4,8 +4,8 @@ colouring-lean.hamalainen.dev {
         format json
     }
 
-    # No encode directive: the app sends its SSE stream uncompressed for now, and Caddy
-    # flushes text/event-stream responses immediately, which the stream needs.
+    # The app brotli-compresses its own SSE stream when the browser accepts it, so no encode
+    # directive here. Caddy flushes text/event-stream responses immediately, which the stream needs.
     reverse_proxy 127.0.0.1:8084
 
     @hasBody method POST PUT PATCH
