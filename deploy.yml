@@ -1,0 +1,84 @@
+---
+# Lean does not cross-compile, so the linux/amd64 binary is built in a Docker container on this
+# Mac by deploy/build-linux.sh, then copied to the droplet.
+- name: Build colouring-lean (linux/amd64)
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Build linux/amd64 binary in Docker
+      ansible.builtin.command:
+        cmd: "{{ playbook_dir }}/deploy/build-linux.sh"
+      changed_when: true
+
+- name: Deploy colouring-lean to droplet
+  hosts: droplet
+  gather_facts: false
+
+  vars:
+    dest: /opt/colouring-lean
+    build_dir: "{{ playbook_dir }}/build"
+    binary: colouring-linux-amd64
+    unit: colouring-lean.service
+    site: colouring-lean.hamalainen.dev
+
+  tasks:
+    - name: Ensure install directory exists
+      ansible.builtin.file:
+        path: "{{ dest }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Install binary
+      ansible.builtin.copy:
+        src: "{{ build_dir }}/{{ binary }}"
+        dest: "{{ dest }}/{{ binary }}"
+        owner: root
+        group: root
+        mode: "0755"
+      notify: Restart colouring-lean
+
+    - name: Install systemd system unit
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/deploy/{{ unit }}"
+        dest: "/etc/systemd/system/{{ unit }}"
+        owner: root
+        group: root
+        mode: "0644"
+      notify:
+        - Reload systemd
+        - Restart colouring-lean
+
+    - name: Enable colouring-lean
+      ansible.builtin.systemd:
+        name: "{{ unit }}"
+        enabled: true
+        state: started
+        daemon_reload: true
+
+    - name: Install Caddy site
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/deploy/{{ site }}"
+        dest: "/etc/caddy/sites/{{ site }}"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload caddy
+
+  handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Restart colouring-lean
+      ansible.builtin.systemd:
+        name: "{{ unit }}"
+        state: restarted
+
+    - name: Reload caddy
+      ansible.builtin.systemd:
+        name: caddy
+        state: reloaded

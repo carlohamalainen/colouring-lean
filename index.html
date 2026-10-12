@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Colouring Hundred Boxes with Lean</title>
+  <link rel="icon" href="data:,">
+  <script type="module" src="/datastar.js"></script>
+  <style>
+    :root {
+      --p0: #ffffff;
+      --p1: #f3a6a6;
+      --p2: #f8c78f;
+      --p3: #f5e392;
+      --p4: #abdcab;
+      --p5: #9fd2e8;
+      --p6: #b6b2f0;
+      --p7: #e9b0e0;
+      --p8: #6e6e7e;
+      --paper: #f7f5f0;
+      --ink: #3a3a3f;
+      --muted: #8a8a92;
+      --line: #e6e3dc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 16px;
+      gap: 24px;
+    }
+    h1 { font-weight: 500; font-size: 1.6rem; margin: 0; }
+    p { margin: 0; color: var(--muted); text-align: center; max-width: 32rem; }
+    .palette { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .swatch {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      padding: 0;
+      cursor: pointer;
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .swatch:hover { transform: scale(1.08); }
+    .swatch.selected { box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink); }
+    #board { width: 100%; max-width: 520px; }
+    #grid { display: grid; gap: 6px; }
+    .cell {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      padding: 0;
+      cursor: pointer;
+      transition: background-color 700ms ease, border-color 200ms ease;
+    }
+    .cell:hover { border-color: var(--muted); }
+    .stats { font-size: .9rem; }
+    footer { margin-top: auto; font-size: .85rem; color: var(--muted); }
+    footer a { color: inherit; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line); }
+    footer a:hover { color: var(--ink); text-decoration-color: var(--ink); }
+  </style>
+</head>
+<body data-signals="{colour: 5}">
+  <h1>Colouring Boxes with Lean</h1>
+  <p>Pick a colour and click a cell. Colours fade back to white over time.</p>
+
+  <div class="palette">
+    <button class="swatch" style="background: var(--p0)" data-on:click="$colour = 0" data-class:selected="$colour === 0" title="White"></button>
+    <button class="swatch" style="background: var(--p1)" data-on:click="$colour = 1" data-class:selected="$colour === 1" title="Rose"></button>
+    <button class="swatch" style="background: var(--p2)" data-on:click="$colour = 2" data-class:selected="$colour === 2" title="Peach"></button>
+    <button class="swatch" style="background: var(--p3)" data-on:click="$colour = 3" data-class:selected="$colour === 3" title="Butter"></button>
+    <button class="swatch" style="background: var(--p4)" data-on:click="$colour = 4" data-class:selected="$colour === 4" title="Mint"></button>
+    <button class="swatch" style="background: var(--p5)" data-on:click="$colour = 5" data-class:selected="$colour === 5" title="Sky"></button>
+    <button class="swatch" style="background: var(--p6)" data-on:click="$colour = 6" data-class:selected="$colour === 6" title="Lavender"></button>
+    <button class="swatch" style="background: var(--p7)" data-on:click="$colour = 7" data-class:selected="$colour === 7" title="Orchid"></button>
+    <button class="swatch" style="background: var(--p8)" data-on:click="$colour = 8" data-class:selected="$colour === 8" title="Slate"></button>
+  </div>
+
+  <!-- The server replaces #grid, #online and #paints with every frame. -->
+  <div id="board" data-init="@get('/updates')">
+    <div id="grid"></div>
+  </div>
+
+  <p class="stats"><span id="online">0</span> painting now &middot; <span id="paints">0</span> cells painted</p>
+
+  <footer>Built using <a href="https://lean-lang.org">Lean</a> and <a href="https://github.com/starfederation/datastar-lean">Datastar</a> &middot; <a href="https://github.com/carlohamalainen/colouring-lean">Source</a></footer>
+</body>
+</html>

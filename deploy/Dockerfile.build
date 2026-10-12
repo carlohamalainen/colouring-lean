@@ -1,0 +1,11 @@
+# Build image for the linux/amd64 binary. Ubuntu 24.04 matches the droplet, so the glibc the
+# binary links against is the one the droplet has.
+FROM ubuntu:24.04
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates curl git build-essential \
+ && rm -rf /var/lib/apt/lists/*
+COPY lean-toolchain /tmp/lean-toolchain
+RUN curl -sSfL https://elan.lean-lang.org/elan-init.sh \
+    | sh -s -- -y --default-toolchain "$(cat /tmp/lean-toolchain)"
+ENV PATH=/root/.elan/bin:$PATH
+WORKDIR /work

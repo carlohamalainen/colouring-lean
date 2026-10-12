@@ -1,0 +1,16 @@
+{"version": "1.2.0",
+ "packagesDir": ".lake/packages",
+ "packages":
+ [{"url": "https://github.com/starfederation/datastar-lean",
+   "type": "git",
+   "subDir": null,
+   "scope": "",
+   "rev": "3798b6a1846debf758933a985accc14211eee582",
+   "name": "datastar",
+   "manifestFile": "lake-manifest.json",
+   "inputRev": "3798b6a1846debf758933a985accc14211eee582",
+   "inherited": false,
+   "configFile": "lakefile.toml"}],
+ "name": "colouring",
+ "lakeDir": ".lake",
+ "fixedToolchain": false}

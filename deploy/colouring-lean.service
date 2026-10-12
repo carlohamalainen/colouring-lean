@@ -1,0 +1,16 @@
+[Unit]
+Description=Colouring page (Lean + Datastar)
+After=network.target
+
+[Service]
+Type=simple
+# A transient unprivileged user: the program reads nothing from disk and writes nothing.
+DynamicUser=yes
+WorkingDirectory=/opt/colouring-lean
+# Arguments: port, seconds per fade step, bind address.
+ExecStart=/opt/colouring-lean/colouring-linux-amd64 8084 30 127.0.0.1
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
