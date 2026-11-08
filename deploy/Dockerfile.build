@@ -2,7 +2,7 @@
 # binary links against is the one the droplet has.
 FROM ubuntu:24.04
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates curl git build-essential \
+ && apt-get install -y --no-install-recommends ca-certificates curl git build-essential libuv1-dev \
  && rm -rf /var/lib/apt/lists/*
 COPY lean-toolchain /tmp/lean-toolchain
 RUN curl -sSfL https://elan.lean-lang.org/elan-init.sh \

@@ -49,7 +49,7 @@
     .swatch:hover { transform: scale(1.08); }
     .swatch.selected { box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink); }
     #board { width: 100%; max-width: 520px; }
-    #grid { display: grid; gap: 6px; }
+    #grid { display: grid; gap: 6px; touch-action: none; user-select: none; -webkit-user-select: none; }
     .cell {
       width: 100%;
       aspect-ratio: 1;
@@ -68,7 +68,7 @@
 </head>
 <body data-signals="{colour: 5}">
   <h1>Colouring Boxes with Lean</h1>
-  <p>Pick a colour and click a cell.</p>
+  <p>Pick a colour, then click or drag across the cells.</p>
 
   <div class="palette">
     <button class="swatch" style="background: var(--p0)" data-on:click="$colour = 0" data-class:selected="$colour === 0" title="White"></button>
@@ -82,8 +82,34 @@
     <button class="swatch" style="background: var(--p8)" data-on:click="$colour = 8" data-class:selected="$colour === 8" title="Slate"></button>
   </div>
 
-  <!-- The server replaces #grid, #online and #paints with every frame. -->
-  <div id="board" data-init="@get('/updates')">
+  <!--
+    The server replaces #grid, #online and #paints with every frame, so painting is handled here
+    on #board, for whichever cell the event lands on.
+
+    Press and drag paints every cell the pointer enters. Each cell is painted locally at once, with
+    no transition, and posted; the next frame from the server confirms it (or undoes a paint the
+    server refused). A touch captures the pointer to the cell it started on, so the capture is
+    released to let the finger's moves reach the other cells. A click from the keyboard
+    (evt.detail is 0) paints the focused cell.
+  -->
+  <div id="board"
+       data-signals="{_drawing: false, _last: ''}"
+       data-init="@get('/updates')"
+       data-on:pointerdown="if (evt.button !== 0 || !evt.target.classList.contains('cell')) return;
+                            evt.preventDefault();
+                            evt.target.releasePointerCapture(evt.pointerId);
+                            $_drawing = true;
+                            $_last = evt.target.id;
+                            evt.target.style.cssText = 'background: var(--p' + $colour + '); transition: none';
+                            @post('/paint/' + evt.target.id.slice(2))"
+       data-on:pointerover="if (!$_drawing || !evt.target.classList.contains('cell') || evt.target.id === $_last) return;
+                            $_last = evt.target.id;
+                            evt.target.style.cssText = 'background: var(--p' + $colour + '); transition: none';
+                            @post('/paint/' + evt.target.id.slice(2))"
+       data-on:click="if (evt.detail !== 0 || !evt.target.classList.contains('cell')) return;
+                      @post('/paint/' + evt.target.id.slice(2))"
+       data-on:pointerup__window="$_drawing = false"
+       data-on:pointercancel__window="$_drawing = false">
     <div id="grid"></div>
   </div>
 

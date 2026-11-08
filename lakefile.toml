@@ -7,14 +7,22 @@ defaultTargets = ["colouring"]
 [[require]]
 name = "datastar"
 git = "https://github.com/starfederation/datastar-lean"
-rev = "3798b6a1846debf758933a985accc14211eee582"
+rev = "4175d592c33930d37e310e6e2d08e9c626ef5ba9"
 
 [[require]]
 name = "datastar-brotli"
 git = "https://github.com/starfederation/datastar-lean"
 subDir = "datastar-brotli"
-rev = "3798b6a1846debf758933a985accc14211eee582"
+rev = "4175d592c33930d37e310e6e2d08e9c626ef5ba9"
 
+[[require]]
+name = "datastar-leanin"
+git = "https://github.com/starfederation/datastar-lean"
+subDir = "datastar-leanin"
+rev = "4175d592c33930d37e310e6e2d08e9c626ef5ba9"
+
+# LeanIn links its socket shim, which needs libuv.
 [[lean_exe]]
 name = "colouring"
 root = "Main"
+moreLinkArgs = ["-luv"]
